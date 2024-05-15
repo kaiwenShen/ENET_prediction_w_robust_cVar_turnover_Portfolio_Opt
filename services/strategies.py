@@ -1,6 +1,6 @@
 import numpy as np
 from services.estimators import *
-from services.optimization import *
+from services.optimization import mega_MVO
 
 
 # this file will produce portfolios as outputs from data - the strategies can be implemented as classes or functions
@@ -64,6 +64,31 @@ class OLS_MVO:
         # get the last T observations
         returns = periodReturns.iloc[(-1) * self.NumObs:, :]
         factRet = factorReturns.iloc[(-1) * self.NumObs:, :]
-        mu, Q = OLS(returns, factRet)
-        x = MVO(mu, Q, x0=x0, objective_lambda_dict=objective_lambda_dict,returns = returns)
-        return x
+        mu, Q, r2 = OLS(returns, factRet, objective_lambda_dict)
+        x = mega_MVO(mu, Q, x0=x0, objective_lambda_dict=objective_lambda_dict, returns=returns)
+        return x, r2
+
+
+class ENET_MVO:
+    """
+    uses historical returns to estimate the covariance matrix and expected return
+    """
+
+    def __init__(self, NumObs=36):
+        self.NumObs = NumObs  # number of observations to use
+
+    def execute_strategy(self, periodReturns, factorReturns, x0, objective_lambda_dict):
+        """
+        executes the portfolio allocation strategy based on the parameters in the __init__
+
+        :param factorReturns:
+        :param periodReturns:
+        :return:x
+        """
+        T, n = periodReturns.shape
+        # get the last T observations
+        returns = periodReturns.iloc[(-1) * self.NumObs:, :]
+        factRet = factorReturns.iloc[(-1) * self.NumObs:, :]
+        mu, Q, r2 = ElasticNet_reg(returns, factRet, objective_lambda_dict)
+        x = mega_MVO(mu, Q, x0=x0, objective_lambda_dict=objective_lambda_dict, returns=returns)
+        return x, r2
