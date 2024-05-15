@@ -33,9 +33,10 @@ def MVO(mu, Q, x0, objective_lambda_dict, returns):
     if np.sum(x0) <= tol:
         objective_lambda_dict['turnover'] = 0
     turnover = cp.norm(x - x0, 1)
-
     # Robustness
     ellipsoidal_robustness = cp.norm2(x @ cp.sqrt(cal_theta(Q, T)))
+
+
     # objective expression dictionary
     objective_expresion_dict = {
         'portfolio_variance': portfolio_variance,
