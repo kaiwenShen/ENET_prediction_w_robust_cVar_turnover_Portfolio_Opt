@@ -51,13 +51,13 @@ def mega_MVO(mu, Q, x0, objective_lambda_dict, returns):
     # if corresponding lambda is 0, then we do not include it in the objective function
     obj_expression = sum(
         [objective_lambda_dict[key] * objective_expresion_dict[key] for key in list(objective_lambda_dict.keys())[:-4] if
-         np.abs(objective_lambda_dict[key]) >= tol])
+         np.abs(objective_lambda_dict[key]) >= tol])-portfolio_return
     # Objective function
     obj = cp.Minimize(obj_expression)
     # Constraints
     constraint = []
     constraint += [x >= 0, cp.sum(x) == 1]  # portfolio weights sum to 1, no short selling
-    constraint += [portfolio_return >= np.mean(mu)]  # expected return constraint
+    # constraint += [portfolio_return >= np.mean(mu)]  # expected return constraint
     constraint += [z_s >= np.zeros(T).T]# cvar constraint
     constraint += [z_s >= -returns.values @ x - np.ones(T) * gamma]# cvar constraint
     # Solve the problem
