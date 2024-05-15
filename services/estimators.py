@@ -80,7 +80,7 @@ def ElasticNet_reg(returns, factRet, obj_lambda_dict):
         dof_penalty = 1 / (2 * T)
         obj = cp.Minimize(dof_penalty*cp.sum_squares(residual) + obj_lambda_dict['enet_alpha']*obj_lambda_dict['enet_lambda'] * cp.norm1(beta) + obj_lambda_dict['enet_alpha']*(1-obj_lambda_dict['enet_lambda']) * cp.sum_squares(beta))
     prob = cp.Problem(obj)
-    prob.solve()
+    prob.solve(verbose=False)
     B = beta.value
     ep = returns - X @ B
     mu = cal_mu(B, factRet)
