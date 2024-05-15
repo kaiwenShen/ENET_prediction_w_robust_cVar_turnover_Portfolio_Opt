@@ -25,10 +25,11 @@ def MVO(mu, Q):
     # Objective function construct
     portfolio_variance = cp.quad_form(x, Q)
     portfolio_return = mu.T @ x
-    obj = cp.Minimize(portfolio_variance - portfolio_return)
+    obj = cp.Minimize(portfolio_variance)
     # Constraints
     constraint = []
     constraint += [x >= 0, cp.sum(x) == 1]  # portfolio weights sum to 1, no short selling
+    constraint += [portfolio_return >= np.mean(mu)]  # expected return constraint
     # Solve the problem
     prob = cp.Problem(obj,
                       constraint)
