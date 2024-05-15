@@ -44,7 +44,7 @@ def MVO(mu, Q, x0):
     # if corresponding lambda is 0, then we do not include it in the objective function
     obj_expression = sum(
         [objective_lambda_dict[key] * objective_expresion_dict[key] for key in objective_lambda_dict.keys() if
-         objective_lambda_dict[key] != 0])
+         np.abs(objective_lambda_dict[key]) >= tol])
     obj = cp.Minimize(obj_expression)
     # obj = cp.Minimize(portfolio_variance)
     # Constraints
