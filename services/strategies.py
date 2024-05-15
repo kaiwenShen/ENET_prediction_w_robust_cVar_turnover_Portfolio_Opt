@@ -18,30 +18,30 @@ def equal_weight(periodReturns):
     return x
 
 
-class HistoricalMeanVarianceOptimization:
-    """
-    uses historical returns to estimate the covariance matrix and expected return
-    """
-
-    def __init__(self, NumObs=36):
-        self.NumObs = NumObs  # number of observations to use
-
-    def execute_strategy(self, periodReturns, factorReturns=None):
-        """
-        executes the portfolio allocation strategy based on the parameters in the __init__
-
-        :param periodReturns:
-        :param factorReturns:
-        :return: x
-        """
-        factorReturns = None  # we are not using the factor returns
-        returns = periodReturns.iloc[(-1) * self.NumObs:, :]
-        print(len(returns))
-        mu = np.expand_dims(returns.mean(axis=0).values, axis=1)
-        Q = returns.cov().values
-        x = MVO(mu, Q)
-
-        return x
+# class HistoricalMeanVarianceOptimization:
+#     """
+#     uses historical returns to estimate the covariance matrix and expected return
+#     """
+#
+#     def __init__(self, NumObs=36):
+#         self.NumObs = NumObs  # number of observations to use
+#
+#     def execute_strategy(self, periodReturns, factorReturns=None):
+#         """
+#         executes the portfolio allocation strategy based on the parameters in the __init__
+#
+#         :param periodReturns:
+#         :param factorReturns:
+#         :return: x
+#         """
+#         factorReturns = None  # we are not using the factor returns
+#         returns = periodReturns.iloc[(-1) * self.NumObs:, :]
+#         print(len(returns))
+#         mu = np.expand_dims(returns.mean(axis=0).values, axis=1)
+#         Q = returns.cov().values
+#         x = MVO(mu, Q)
+#
+#         return x
 
 
 class OLS_MVO:
@@ -52,7 +52,7 @@ class OLS_MVO:
     def __init__(self, NumObs=36):
         self.NumObs = NumObs  # number of observations to use
 
-    def execute_strategy(self, periodReturns, factorReturns):
+    def execute_strategy(self, periodReturns, factorReturns, x0):
         """
         executes the portfolio allocation strategy based on the parameters in the __init__
 
@@ -65,5 +65,5 @@ class OLS_MVO:
         returns = periodReturns.iloc[(-1) * self.NumObs:, :]
         factRet = factorReturns.iloc[(-1) * self.NumObs:, :]
         mu, Q = OLS(returns, factRet)
-        x = MVO(mu, Q)
+        x = MVO(mu, Q, x0=x0)
         return x

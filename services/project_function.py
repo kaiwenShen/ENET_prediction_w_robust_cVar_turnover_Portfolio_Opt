@@ -9,5 +9,5 @@ def project_function(periodReturns, periodFactRet, x0):
     :return: the allocation as a vector
     """
     Strategy = OLS_MVO()
-    x = Strategy.execute_strategy(periodReturns, periodFactRet)
+    x = Strategy.execute_strategy(periodReturns, periodFactRet,x0)
     return x
