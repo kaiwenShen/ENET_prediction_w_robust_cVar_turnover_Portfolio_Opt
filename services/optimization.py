@@ -20,28 +20,17 @@ def MVO(mu, Q):
 
     # Find the total number of assets
     n = len(mu)
-
-    # Set the target as the average expected return of all assets
-    targetRet = np.mean(mu)
-
-    # Disallow short sales
-    lb = np.zeros(n)
-
-    # Add the expected return constraint
-    A = -1 * mu.T
-    b = -1 * targetRet
-
-    # constrain weights to sum to 1
-    Aeq = np.ones([1, n])
-    beq = 1
-
     # Define and solve using CVXPY
     x = cp.Variable(n)
-    prob = cp.Problem(cp.Minimize((1 / 2) * cp.quad_form(x, Q)),
-                      [A @ x <= b,
-                       Aeq @ x == beq,
-                       x >= lb])
+    # Objective function construct
+    portfolio_variance = cp.quad_form(x, Q)
+    portfolio_return = mu.T @ x
+    obj = cp.Minimize(portfolio_variance - portfolio_return)
+    # Constraints
+    constraint = []
+    constraint += [x >= 0, cp.sum(x) == 1]  # portfolio weights sum to 1, no short selling
+    # Solve the problem
+    prob = cp.Problem(obj,
+                      constraint)
     prob.solve(verbose=False)
     return x.value
-
-
