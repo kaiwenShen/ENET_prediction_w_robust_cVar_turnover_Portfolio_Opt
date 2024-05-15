@@ -1,8 +1,10 @@
 import cvxpy as cp
 import numpy as np
+from services.helper import cal_theta
+import scipy.stats as stats
 
 
-def MVO(mu, Q, x0):
+def MVO(mu, Q, x0, objective_lambda_dict, returns):
     """
     #---------------------------------------------------------------------- Use this function to construct an example of a MVO portfolio.
     #
@@ -19,34 +21,33 @@ def MVO(mu, Q, x0):
     """
     tol = 1e-5
     # Find the total number of assets
-    n = len(mu)
+    T,n = returns.shape
     # Define and solve using CVXPY
     x = cp.Variable(n)
     # Objective function construct
+    # MVO
     portfolio_variance = cp.quad_form(x, Q)
     portfolio_return = mu.T @ x
+    # Turnover penalty
     # if all x0 is zero, then we are at the beginning of the period, no penalty for turnover
     if np.sum(x0) <= tol:
-        lambda_turnover = 0
-    else:
-        lambda_turnover = 0
+        objective_lambda_dict['turnover'] = 0
     turnover = cp.norm(x - x0, 1)
 
-    objective_lambda_dict = {
-        'portfolio_variance': 1,
-        'turnover': lambda_turnover
-    }
+    # Robustness
+    ellipsoidal_robustness = cp.norm2(x @ cp.sqrt(cal_theta(Q, T)))
+    # objective expression dictionary
     objective_expresion_dict = {
         'portfolio_variance': portfolio_variance,
-        'turnover': turnover
+        'turnover': turnover,
+        'ellipsoidal_robustness': ellipsoidal_robustness
     }
-
     # if corresponding lambda is 0, then we do not include it in the objective function
     obj_expression = sum(
         [objective_lambda_dict[key] * objective_expresion_dict[key] for key in objective_lambda_dict.keys() if
          np.abs(objective_lambda_dict[key]) >= tol])
+    # Objective function
     obj = cp.Minimize(obj_expression)
-    # obj = cp.Minimize(portfolio_variance)
     # Constraints
     constraint = []
     constraint += [x >= 0, cp.sum(x) == 1]  # portfolio weights sum to 1, no short selling

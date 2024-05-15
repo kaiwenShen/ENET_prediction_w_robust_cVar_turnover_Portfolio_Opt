@@ -19,3 +19,7 @@ def cal_Q(beta, factRet, residuals):
     Q = V.T @ F @ V + D
     Q = (Q + Q.T) / 2
     return Q
+
+def cal_theta(Q,T):
+    theta = 1/T * np.diag(Q)
+    return np.diag(theta)
