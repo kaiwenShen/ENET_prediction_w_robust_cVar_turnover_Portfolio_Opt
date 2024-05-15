@@ -51,15 +51,16 @@ def mega_MVO(mu, Q, x0, objective_lambda_dict, returns):
     # if corresponding lambda is 0, then we do not include it in the objective function
     obj_expression = sum(
         [objective_lambda_dict[key] * objective_expresion_dict[key] for key in list(objective_lambda_dict.keys())[:-4] if
-         np.abs(objective_lambda_dict[key]) >= tol])-portfolio_return
+         np.abs(objective_lambda_dict[key]) >= tol])
     # Objective function
     obj = cp.Minimize(obj_expression)
     # Constraints
     constraint = []
     constraint += [x >= 0, cp.sum(x) == 1]  # portfolio weights sum to 1, no short selling
-    # constraint += [portfolio_return >= np.mean(mu)]  # expected return constraint
+    constraint += [portfolio_return >= np.mean(mu)]  # expected return constraint
     constraint += [z_s >= np.zeros(T).T]# cvar constraint
-    constraint += [z_s >= -returns.values @ x - np.ones(T) * gamma]# cvar constraint
+    six_month_returns = np.power(1+returns.values,6)-1# rebalancing period == 6 months, sample datapoint == 1 month
+    constraint += [z_s >= -six_month_returns @ x - np.ones(T) * gamma]# cvar constraint
     # Solve the problem
     prob = cp.Problem(obj,
                       constraint)
