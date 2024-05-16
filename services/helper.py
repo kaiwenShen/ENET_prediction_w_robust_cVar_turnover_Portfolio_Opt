@@ -1,11 +1,13 @@
 import numpy as np
 
+
 def cal_mu(beta, factRet):
     a = beta[0, :]
     V = beta[1:, :]
     f_bar = np.expand_dims(factRet.mean(axis=0).values, 1)
     mu = np.expand_dims(a, axis=1) + V.T @ f_bar
     return mu
+
 
 def cal_Q(beta, factRet, residuals):
     """compute the vcov matrix with formula Q = B'FB + delta"""
@@ -20,10 +22,10 @@ def cal_Q(beta, factRet, residuals):
     Q = (Q + Q.T) / 2
     return Q
 
-def cal_theta(Q,T):
-    theta = 1/T * np.diag(Q)
-    return np.diag(theta)
 
+def cal_theta(Q, T):
+    theta = 1 / T * np.diag(Q)
+    return np.diag(theta)
 
 
 def r_squared(y, y_hat):
@@ -36,7 +38,7 @@ def adjusted_r_squared(y, y_hat, X_shape):
     assert len(X_shape) == 2
     n = X_shape[0]  # number of observations
     k = X_shape[1]  # number of factors
-    return 1 - (1 - r_squared(y, y_hat)) * (n-1) / (n - k - 1)
+    return 1 - (1 - r_squared(y, y_hat)) * (n - 1) / (n - k - 1)
 
 
 def adjusted_r_squared_w_0(y, y_hat, beta, X_shape):
